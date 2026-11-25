@@ -1,0 +1,320 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PIPEPURE Master Control Centre</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+:root{--bg:#061426;--bg2:#0A1E35;--cy:#00D9FF;--aq:#21E6D0;--tx:#F5FAFF;--mut:#8FA6BD;--ok:#2ED573;--wa:#FFB020;--cr:#FF4D5E;--ln:rgba(0,217,255,.18);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:var(--bg);background-image:linear-gradient(rgba(0,217,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(0,217,255,.045) 1px,transparent 1px);background-size:32px 32px;color:var(--tx);font:14px/1.45 Inter,system-ui,sans-serif}
+h1,h2,h3,.logo{font-family:"Space Grotesk",Inter,sans-serif;margin:0}
+h2{font-size:22px;margin-bottom:12px}h3{font-size:14px;color:var(--aq);margin-bottom:8px;font-weight:500}
+.app{display:grid;grid-template-columns:172px minmax(0,1fr) 272px;grid-template-rows:auto minmax(0,1fr);height:100%}
+header{grid-column:1/4;display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:8px 14px;background:var(--bg2);border-bottom:1px solid var(--ln)}
+.logo{font-size:20px;font-weight:700;color:var(--cy);letter-spacing:.04em}
+.mut{color:var(--mut)}.sp{flex:1}
+nav{padding:10px 8px;border-right:1px solid var(--ln);background:rgba(10,30,53,.6);overflow:auto}
+nav button{display:block;width:100%;text-align:left;margin-bottom:4px}
+.col{overflow:auto;padding:14px 16px;min-width:0}
+aside{border-left:1px solid var(--ln);background:rgba(10,30,53,.6);padding:12px;overflow:auto}
+button,select,input[type=text]{font:inherit;color:var(--tx);background:rgba(0,217,255,.07);border:1px solid var(--ln);border-radius:6px;padding:6px 10px;cursor:pointer}
+button:hover{border-color:var(--cy)}button:focus-visible,select:focus-visible,input:focus-visible{outline:2px solid var(--cy);outline-offset:1px}
+button.on{background:var(--cy);color:#04202e;border-color:var(--cy);font-weight:600}
+.estop{background:var(--cr);border-color:var(--cr);color:#fff;font-weight:600}
+.pill{padding:3px 10px;border-radius:99px;border:1px solid var(--ln);font-size:12px}
+.pill.ok{color:var(--ok);border-color:var(--ok)}.pill.wa{color:var(--wa);border-color:var(--wa)}.pill.cr{color:var(--cr);border-color:var(--cr)}
+.demo{background:rgba(255,176,32,.12);border:1px solid var(--wa);color:var(--wa);padding:5px 10px;border-radius:6px;font-size:12px;margin-bottom:12px}
+#hold{background:rgba(255,77,94,.14);border:1px solid var(--cr);padding:8px 12px;border-radius:6px;margin-bottom:12px;display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+[hidden]{display:none!important}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-bottom:12px}
+.g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px;margin-bottom:12px}
+.card{background:rgba(10,30,53,.78);border:1px solid var(--ln);border-radius:10px;padding:12px 14px;backdrop-filter:blur(6px)}
+.big{font:700 28px "Space Grotesk",sans-serif}
+.kv{display:flex;justify-content:space-between;gap:8px;padding:2px 0;border-bottom:1px dashed rgba(143,166,189,.15)}
+.chip{display:inline-block;padding:0 7px;border-radius:99px;font-size:11px;margin-left:4px}
+.chip.ok{background:rgba(46,213,115,.18);color:var(--ok)}.chip.wa{background:rgba(255,176,32,.18);color:var(--wa)}.chip.cr{background:rgba(255,77,94,.2);color:var(--cr)}
+.al{border-left:3px solid var(--ok);padding:4px 8px;margin:6px 0;background:rgba(255,255,255,.03)}
+.al.wa{border-color:var(--wa)}.al.cr{border-color:var(--cr)}.al b{display:block}.al span{color:var(--mut);font-size:12px}
+.bar{height:8px;background:rgba(255,255,255,.08);border-radius:4px;overflow:hidden;margin:4px 0}.bar i{display:block;height:100%;background:var(--cy)}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.log{max-height:180px;overflow:auto;font-size:12px;color:var(--mut)}
+label.s{display:block;margin-bottom:7px;font-size:12px;color:var(--mut)}label.s output{float:right;color:var(--tx)}
+input[type=range]{width:100%;accent-color:#00D9FF}
+#stage{height:min(58vh,520px);border:1px solid var(--ln);border-radius:10px;overflow:hidden;position:relative}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.stp{display:flex;gap:6px;flex-wrap:wrap}.stp span{padding:3px 8px;border-radius:6px;border:1px solid var(--ln);font-size:12px;color:var(--mut)}
+.stp span.d{color:var(--ok);border-color:var(--ok)}.stp span.c{color:#04202e;background:var(--cy);border-color:var(--cy)}
+table{width:100%;border-collapse:collapse}td,th{text-align:left;padding:4px 6px;border-bottom:1px solid rgba(143,166,189,.15)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--bg2);border:1px solid var(--cy);padding:8px 14px;border-radius:8px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9;max-width:90vw}
+#toast.on{opacity:1}
+@media(max-width:1000px){.app{grid-template-columns:1fr;height:auto}header{grid-column:1}nav{display:flex;flex-wrap:wrap;gap:4px;border-right:0}nav button{width:auto;margin:0}aside{border-left:0}.col{overflow:visible}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head>
+<body>
+<div class="app">
+<header>
+<span class="logo">PIPEPURE</span><span class="mut">Master Control Centre</span><span id="clk" class="mut"></span><span class="sp"></span>
+<select id="scale" aria-label="Scale mode"><option value="home">Home system</option><option value="big">Large-scale system</option></select>
+<span class="pill ok">Simulated link</span>
+<span id="modes"><button data-m="auto">Auto</button> <button data-m="manual">Manual</button> <button data-m="safe">Safe</button></span>
+<span class="pill" id="health"></span>
+<button class="estop" data-a="estop">Emergency stop</button>
+<span class="mut">Demo owner (authorised)</span>
+</header>
+<nav id="nav"></nav>
+<section class="col">
+<div id="hold" hidden><b>SUPPLY ON HOLD</b><span id="holdTxt" class="mut"></span><button data-a="release">Verify and release supply</button></div>
+<div id="main"></div>
+</section>
+<aside id="sim"></aside>
+</div>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+const DEF={tank:68,turb:1.2,ph:7.4,tds:180,temp:26,cl:.4,flow:12,leak:0,press:2.8,filter:22,waste:20,days:9,fault:false};
+const S={...DEF,leakZone:'bathroom',mode:'auto',hold:false,flush:null,bigLeak:false,okTicks:99};
+const RE={coll:60,stage:-1,t:0,verified:false,tank:35};
+const R={},H={tank:[],turb:[],fin:[],fout:[],press:[],ph:[],tds:[]},LOG=[],CYC=[],breach={};
+let ALERTS=[],cur='ov',N=0,armed=false,lastKey='',lastGap=0;
+const STAGES=['Collection','Screening','Pre-treatment','Treatment','Disinfection','Quality verification','Reuse storage','Approved non-potable use'];
+const FSTEPS=['Stop pump','Switch valves to waste route','Confirm valve feedback','Controlled flushing','Stop pump','Restore normal routing','Verify readings','Log cycle'];
+const ZONES=['kitchen','bathroom','washbasin','garden'],SHARE={kitchen:.35,bathroom:.3,washbasin:.15,garden:.2};
+const f1=(v,d=1)=>Number(v).toFixed(d),cap=s=>s[0].toUpperCase()+s.slice(1);
+function log(m){LOG.unshift(new Date().toLocaleTimeString()+'  '+m);if(LOG.length>60)LOG.pop()}
+let tTo;function toast(m){const t=$('#toast');t.textContent=m;t.classList.add('on');clearTimeout(tTo);tTo=setTimeout(()=>t.classList.remove('on'),3600)}
+const chip=(l,t)=>`<span class="chip ${l}">${t}</span>`;
+const tr=a=>{if(a.length<10)return'→';const d=a[a.length-1]-a[a.length-10],m=.03*Math.max(1,Math.abs(a[a.length-1]));return d>m?'↑':d<-m?'↓':'→'};
+
+/* ---------- readings, rules, automation ---------- */
+function chk(k,c){breach[k]=c?(breach[k]||0)+1:0;return breach[k]}
+function evaluate(){
+ const A=[],add=(lv,t,why,z)=>A.push({lv,t,why,z}),gap=R.flowIn-R.flowOut;lastGap=gap;
+ if(S.fault){add('cr','Sensor fault: quality probe','Signal invalid or out of range. Quality readings are not trusted and the system is in SAFE mode until the probe is checked and recalibrated.','probe');}
+ else{
+  let n=chk('turb',R.turb>10);
+  if(n>=3)add('cr','Critical turbidity','Turbidity of '+f1(R.turb)+' NTU persisted over 3 samples with a healthy sensor. Supply placed on HOLD.','probe');
+  else if(R.turb>10)add('wa','Turbidity high: rechecking','Reading above limit ('+n+'/3 samples). Sensor health OK. Confirming before any isolation.','probe');
+  else if(R.turb>4)add('wa','Cloudy water','Turbidity '+f1(R.turb)+' NTU is above the configured demo warning limit (4 NTU). Suspended particles are likely; cause not identified.','probe');
+  n=chk('ph',R.ph<5.5||R.ph>9.5);
+  if(n>=3)add('cr','Critical pH','pH '+f1(R.ph)+' persisted outside the configured critical band. Supply placed on HOLD.','probe');
+  else if(R.ph<5.5||R.ph>9.5)add('wa','pH out of range: rechecking','Reading outside critical band ('+n+'/3 samples).','probe');
+  else if(R.ph<6.5||R.ph>8.5)add('wa','pH outside normal band','pH '+f1(R.ph)+' is outside the demo normal band 6.5 to 8.5.','probe');
+  n=chk('ec',R.tds>900);
+  if(n>=3)add('cr','Critical conductivity shift','EC '+f1(R.ec,0)+' µS/cm persisted. The sensor cannot identify what changed. Supply on HOLD pending laboratory verification.','probe');
+  else if(R.tds>500)add('wa','Conductivity shift','TDS estimate '+f1(R.tds,0)+' ppm (EC '+f1(R.ec,0)+' µS/cm). This flags an abnormality only: no specific chemical is identified. Laboratory test recommended.','probe');
+ }
+ if(R.tank<10)add('cr','Tank very low','Level '+f1(R.tank,0)+'%. Pump dry-run protection and flushing are blocked.','tank');
+ else if(R.tank<20)add('wa','Low tank level','Level '+f1(R.tank,0)+'%, below the 20% warning limit.','tank');
+ else if(R.tank>95)add('wa','Overflow risk','Level '+f1(R.tank,0)+'%. Overflow protection stays active.','tank');
+ if(gap>1.5){const lv=gap>4?'cr':'wa';add(lv,'Possible leak in '+S.leakZone+' branch','Inlet flow exceeds outlet use by '+f1(gap)+' L/min and pressure fell to '+f1(R.press,2)+' bar. Suspected zone from branch flow sensor; confidence low to medium (one imbalance signal). Needs inspection.','flow_'+S.leakZone)}
+ if(R.press<1.2&&!S.hold)add('wa','Low pressure','Pressure '+f1(R.press,2)+' bar is below the 1.2 bar limit.','press');
+ else if(R.press>4.5)add('wa','High pressure','Pressure '+f1(R.press,2)+' bar exceeds 4.5 bar. Flushing blocked.','press');
+ if(S.filter>70)add('wa','Strainer and trap inspection due','Differential-pressure estimate shows '+S.filter+'% clogging.','trap');
+ if(S.waste>=90)add('wa','Waste tank nearly full','At '+S.waste+'%. Flushing is blocked until capacity is available.','waste');
+ if(S.days>=15)add('wa','15-day flushing due',S.days+' days since last flush. Runs automatically only if every safety check passes.','valve');
+ ALERTS=A;
+ const bad=A.some(a=>a.z==='probe'||a.z==='tank'&&a.lv==='cr');S.okTicks=bad?0:S.okTicks+1;
+ if(!S.fault&&A.some(a=>a.z==='probe'&&a.lv==='cr')&&!S.hold){S.hold=true;log('HOLD applied: critical water-quality condition')}
+ if(S.fault&&S.mode!=='safe'){S.mode='safe';S.hold=true;log('SAFE mode: sensor fault');abortFlush('sensor fault')}
+ const key=A.map(a=>a.t).join('|');if(key!==lastKey){lastKey=key;A.forEach(a=>log(({cr:'CRITICAL',wa:'WARNING'})[a.lv]+': '+a.t))}
+}
+function flushChecks(){return[
+ ['Tank at least 20%',S.tank>=20],['Pressure between 1.5 and 4.5 bar',R.press>=1.5&&R.press<=4.5],
+ ['Waste tank has capacity (below 80%)',S.waste<80],['No quality HOLD or sensor fault',!S.hold&&!S.fault],
+ ['Not in SAFE mode',S.mode!=='safe'],['No suspected leak',lastGap<1.5],['Valve feedback OK (simulated)',true]]}
+function startFlush(){S.flush={step:0,t:0,litres:0};log('Flushing started')}
+function abortFlush(why){if(S.flush){CYC.unshift({d:new Date().toLocaleString(),l:S.flush.litres,r:'Stopped: '+why});log('Flushing stopped: '+why);S.flush=null}}
+function stepFlush(){const F=S.flush;if(!F)return;
+ if(S.mode==='safe'||S.fault||S.waste>=98||R.press>4.5){abortFlush(S.waste>=98?'waste tank full':S.mode==='safe'?'SAFE mode':'fault or abnormal pressure');return}
+ F.t++;if(F.step===3){S.waste=Math.min(100,S.waste+2);F.litres+=4}
+ if(F.t>=(F.step===3?6:2)){F.t=0;F.step++;if(F.step>=FSTEPS.length){CYC.unshift({d:new Date().toLocaleString(),l:F.litres,r:'Completed'});log('Flushing completed: '+F.litres+' L to waste tank');S.days=0;S.flush=null}}}
+function stepReuse(){if(RE.stage<0||RE.stage>=7)return;
+ if(RE.stage===5&&!RE.verified)return;
+ RE.t++;if(RE.t>=2){RE.t=0;RE.stage++;if(RE.stage===6){RE.tank=Math.min(100,RE.tank+RE.coll*.2);RE.coll=0;log('Reuse: treated water moved to reuse tank')}}}
+
+function tick(){
+ N++;const n=a=>(Math.random()-.5)*a;
+ R.tank=S.tank+n(.2);R.turb=Math.max(0,S.turb+n(.15));R.ph=S.ph+n(.04);R.tds=Math.max(0,S.tds+n(4));R.ec=R.tds*2;R.temp=S.temp+n(.2);R.cl=Math.max(0,S.cl+n(.02));
+ R.flowOut=S.hold?0:Math.max(0,S.flow+n(.4));R.flowIn=S.hold?0:R.flowOut+S.leak;R.press=S.hold?S.press:Math.max(0,S.press-S.leak*.15+n(.04));
+ evaluate();
+ if(S.mode==='auto'&&S.days>=15&&!S.flush&&flushChecks().every(c=>c[1])){log('Auto flushing: due and all checks passed');startFlush()}
+ stepFlush();stepReuse();
+ [['tank',R.tank],['turb',R.turb],['fin',R.flowIn],['fout',R.flowOut],['press',R.press],['ph',R.ph],['tds',R.tds]].forEach(([k,v])=>{H[k].push(v);if(H[k].length>60)H[k].shift()});
+ update();
+}
+/* ---------- views ---------- */
+function spark(ser,lo,hi){const W=240,h=64;return`<svg viewBox="0 0 ${W} ${h}" preserveAspectRatio="none" style="width:100%;height:64px;display:block">`+ser.map(([a,c])=>`<polyline fill="none" stroke="${c}" stroke-width="1.6" points="${a.map((v,i)=>(i/Math.max(a.length-1,1)*W).toFixed(1)+','+(h-Math.min(1,Math.max(0,(v-lo)/(hi-lo)))*h).toFixed(1)).join(' ')}"/>`).join('')+'</svg>'}
+const alertHTML=a=>`<div class="al ${a.lv}"><b>${a.t}</b><span>${a.why}</span></div>`;
+const kv=(k,v)=>`<div class="kv"><span class="mut">${k}</span><span>${v}</span></div>`;
+function ovHTML(){
+ const tl=R.turb>10?'cr':R.turb>4?'wa':'ok',pl=R.ph<5.5||R.ph>9.5?'cr':R.ph<6.5||R.ph>8.5?'wa':'ok',dl=R.tds>900?'cr':R.tds>500?'wa':'ok',gap=lastGap;
+ const last=new Date(Date.now()-S.days*864e5),next=new Date(last.getTime()+15*864e5),due=15-S.days;
+ const q=S.fault?'<div class="al cr"><b>Probe fault</b><span>Readings not trusted</span></div>':'';
+ return`<div class="grid">
+<div class="card"><h3>Main tank level</h3><div class="big">${f1(R.tank*10,0)} L</div><div class="bar"><i style="width:${Math.min(100,R.tank)}%"></i></div>
+${kv('Capacity','1000 L')}${kv('Filled',f1(R.tank,0)+'%')}${kv('Inflow',f1(R.flowIn)+' L/min')}${kv('Overflow',R.tank>95?chip('wa','Warning'):chip('ok','Clear'))}</div>
+<div class="card"><h3>Water quality</h3>${q}
+${kv('pH',f1(R.ph,2)+' '+tr(H.ph)+chip(pl,pl==='ok'?'Normal':pl==='wa'?'Warning':'Critical'))}
+${kv('Turbidity',f1(R.turb)+' NTU '+tr(H.turb)+chip(tl,tl==='ok'?'Normal':tl==='wa'?'Warning':'Critical'))}
+${kv('TDS (estimate)',f1(R.tds,0)+' ppm '+tr(H.tds)+chip(dl,dl==='ok'?'Normal':dl==='wa'?'Warning':'Critical'))}
+${kv('Conductivity',f1(R.ec,0)+' µS/cm')}${kv('Temperature',f1(R.temp)+' °C')}${kv('Free chlorine',f1(R.cl,2)+' mg/L (optional sensor)')}${kv('Laboratory verification','Not on file')}</div>
+<div class="card"><h3>Pipeline health</h3>${kv('Inlet flow',f1(R.flowIn)+' L/min')}${kv('Outlet flow',f1(R.flowOut)+' L/min')}${kv('Imbalance',f1(gap)+' L/min')}${kv('Pressure',f1(R.press,2)+' bar')}
+${kv('Status',S.hold?chip('wa','On hold'):gap>1.5?chip('wa','Suspected leak'):chip('ok','Normal'))}${kv('Suspected zone',gap>1.5?cap(S.leakZone)+' (needs inspection)':'None')}</div>
+<div class="card"><h3>Maintenance</h3>${kv('Last flush',last.toLocaleDateString())}${kv('Next scheduled',next.toLocaleDateString())}${kv('Flushing',due<=0?chip('wa','Due'):'in '+due+' days')}
+${kv('Strainer and trap',S.filter>70?chip('wa','Inspect'):chip('ok','OK')+' '+S.filter+'% clogged')}${kv('Waste tank',S.waste+'%')}</div>
+<div class="card"><h3>Water reuse</h3>${kv('Wastewater collected',f1(RE.coll,0)+' L')}${kv('Treatment',RE.stage<0?'Idle':STAGES[RE.stage])}${kv('Reuse tank',f1(RE.tank,0)+'%')}${kv('Verification',RE.verified?chip('ok','Verified'):chip('wa','Pending'))}${kv('Flush discharge','Excluded from reuse')}</div>
+<div class="card"><h3>Alerts (rule-based, no trained ML model)</h3>${ALERTS.length?ALERTS.slice(0,4).map(alertHTML).join(''):'<div class="al"><b>All parameters within demo limits</b><span>Checked every second</span></div>'}</div></div>
+<div class="grid">
+<div class="card"><h3>Tank level, last 60 s</h3>${spark([[H.tank,'#00D9FF']],0,100)}</div>
+<div class="card"><h3>Turbidity (NTU)</h3>${spark([[H.turb,'#FFB020']],0,15)}</div>
+<div class="card"><h3>Inflow (cyan) vs outflow (aqua), L/min</h3>${spark([[H.fin,'#00D9FF'],[H.fout,'#2ED573']],0,25)}</div>
+<div class="card"><h3>Pressure (bar)</h3>${spark([[H.press,'#21E6D0']],0,6)}</div></div>
+<div class="card"><h3>Event log</h3><div class="log">${LOG.map(l=>'<div>'+l+'</div>').join('')||'No events yet'}</div></div>`}
+function flHTML(){
+ const F=S.flush,ch=flushChecks();
+ $('#flStat').innerHTML='<h3>Cycle status</h3>'+kv('State',F?'Running: '+FSTEPS[F.step]:'Idle')+kv('Days since last flush',S.days+' of 15')+kv('Mode',S.mode==='auto'?'Auto-start when due and safe':S.mode==='manual'?'Approval required':'Blocked (SAFE)')+kv('Estimated duration','about 40 s in this demo')+kv('Discharged this cycle',(F?F.litres:0)+' L')+kv('Waste tank',S.waste+'% of 200 L')+'<div class="bar"><i style="width:'+S.waste+'%;background:#a07a3c"></i></div>'+kv('Strainer and trap clogging',S.filter+'%')+'<div class="bar"><i style="width:'+S.filter+'%;background:#FFB020"></i></div>'+(F?'<div class="stp" style="margin-top:8px">'+FSTEPS.map((s,i)=>`<span class="${i<F.step?'d':i===F.step?'c':''}">${s}</span>`).join('')+'</div>':'');
+ $('#flChk').innerHTML=ch.map(c=>kv(c[0],c[1]?chip('ok','Pass'):chip('cr','Fail'))).join('')+'<p class="mut">Flushing does not remove attached corrosion, hard scale or biofilm. It clears loose sediment only.</p>';
+ $('#flHist').innerHTML='<h3>Flushing history</h3>'+(CYC.length?'<table>'+CYC.map(c=>`<tr><td>${c.d}</td><td>${c.l} L</td><td>${c.r}</td></tr>`).join('')+'</table>':'<span class="mut">No cycles yet. Use the simulator scenario 6 or request a cycle.</span>');
+ $('#bFlush').textContent=F?'Flushing in progress':armed?'Confirm: start flushing now':'Request flushing'}
+function reHTML(){
+ $('#reStat').innerHTML='<h3>Treatment pipeline (separate non-potable system)</h3><div class="stp">'+STAGES.map((s,i)=>`<span class="${i<RE.stage||RE.stage===7?'d':i===RE.stage?'c':''}">${s}</span>`).join('')+'</div>'+(RE.stage===5&&!RE.verified?'<div class="al wa"><b>Waiting for verification</b><span>Reuse storage stays locked until quality is verified.</span></div>':'')+kv('Collected, untreated',f1(RE.coll,0)+' L')+kv('Reuse tank',f1(RE.tank,0)+'% of 300 L')+kv('Verification',RE.verified?chip('ok','Recorded'):chip('wa','Pending'))+kv('Pipe colours','Potable cyan · Waste brown · Reuse green')+kv('Backflow protection','Air gap and check valve (design assumption)')+'<p class="mut">Flushing discharge is never reused automatically. Untreated wastewater never connects to the drinking-water pipes.</p>'}
+function bigHTML(){
+ const base=[38,52,44,30],z=['A','B','C','D'];let sum=0;
+ const rows=z.map((k,i)=>{const lk=S.bigLeak&&i===2,f=base[i]+Math.sin(N/3+i)*2,p=3.1-(lk?.7:0)+Math.sin(N/4+i)*.03;sum+=f;return`<tr><td>Zone ${k} (Block ${i+1})</td><td>${f1(f)}</td><td>${f1(p,2)}</td><td>${lk?chip('wa','Low pressure'):chip('ok','Normal')}</td></tr>`}).join('');
+ const gap=S.bigLeak?9+Math.sin(N)*.5:Math.sin(N)*.4;
+ return`<div class="g2"><div class="card"><h3>Distribution zones</h3><table><tr><th>Zone</th><th>Metered L/min</th><th>Bar</th><th>Status</th></tr>${rows}</table>${kv('Gateway inflow',f1(sum+gap)+' L/min')}${kv('Imbalance (inflow minus zone meters)',f1(gap)+' L/min')}
+${gap>5?'<div class="al wa"><b>Possible leak: Zone C</b><span>Unmetered loss with the lowest zone pressure. Suspected zone only; needs inspection.</span></div>':''}</div>
+<div class="card"><h3>Storage and reuse</h3>${kv('Main storage','81%')}${kv('Overhead tanks A / B / C',f1(72+Math.sin(N/5)*2,0)+'% / 64% / 58%')}${kv('Wastewater treatment','Running (simulated)')}${kv('Reuse tanks 1 / 2','41% / 33%')}${kv('Shared maintenance','Strainer service due in 6 days')}
+<div class="row"><button data-a="bigleak">${S.bigLeak?'Clear Zone C leak':'Inject Zone C leak'}</button></div></div></div>
+<p class="mut">Large-scale mode is a simulation only. Zone flows, tank levels and reuse values are generated, not read from devices.</p>`}
+const VIEWS={
+ ov:['Overview','<div class="demo">DEMO DATA: simulated readings, no hardware connected</div><div id="ov"></div>'],
+ d3:['3D house model','<div class="demo">DEMO DATA</div><div id="stage"></div><div class="row"><button data-a="cut">Toggle cutaway / external</button><button data-a="cam">Reset camera</button><span class="mut">Drag to rotate · Shift-drag or right-drag to pan · Wheel to zoom · Click a component</span></div><div class="g2"><div class="card" id="info"></div><div class="card"><h3>Components</h3><input type="text" id="q" placeholder="Search components" aria-label="Search components" style="width:100%;margin-bottom:6px"><div id="clist"></div></div></div>'],
+ fl:['Smart flushing and sediment collection','<div class="demo">DEMO DATA</div><div class="g2"><div class="card" id="flStat"></div><div class="card"><h3>Safety checks</h3><div id="flChk"></div></div></div><div class="row"><button id="bFlush" data-a="flush">Request flushing</button><button data-a="post">Postpone 1 day</button><button data-a="empty">Empty waste tank</button><button data-a="clean">Clean strainer and trap</button></div><div class="card" id="flHist"></div>'],
+ re:['Water reuse','<div class="demo">DEMO DATA</div><div class="card" id="reStat"></div><div class="row"><button data-a="treat">Start treatment cycle</button><button data-a="verify">Record quality verification</button><button data-a="use">Release 10 L for garden</button></div>'],
+ big:['Large-scale building / society mode','<div class="demo">SIMULATION</div><div id="bg"></div>'],
+ ab:['About PIPEPURE','<div class="card"><h3>Monitor every drop. Protect every source. Reuse every possibility.</h3><p>PIPEPURE watches a house water system from the overhead tank to each branch pipe, schedules 15-day flushing, and tracks treated reuse water.</p><p><b>What this page is:</b> an in-browser simulation of Home mode. Every value is generated. The rule engine uses configurable thresholds and persistence checks. There is no trained ML model.</p><p><b>What it is not:</b> pH, turbidity and TDS probes do not detect every chemical, microbe or metal. Laboratory testing stays separate. The dashboard is supervisory only. Pump and valve safety must live on a local controller with hardware interlocks.</p><p><b>Not built yet:</b> FastAPI backend, PostgreSQL, MQTT, login and roles, Docker setup, and the reports pages.</p></div>']};
+const NAV=[['ov','Overview'],['d3','3D house model'],['fl','Flushing and sediment'],['re','Water reuse'],['big','Large-scale'],['ab','About']];
+function show(v){cur=v;$('#main').innerHTML='<h2>'+VIEWS[v][0]+'</h2>'+VIEWS[v][1];$$('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));$('#scale').value=v==='big'?'big':'home';
+ if(v==='d3'){mount3d();const q=$('#q');q.oninput=clist;clist()}update()}
+function update(){
+ $('#clk').textContent=new Date().toLocaleString();
+ const cr=ALERTS.some(a=>a.lv==='cr'),wa=ALERTS.length>0,h=$('#health');h.className='pill '+(cr?'cr':wa?'wa':'ok');h.textContent=cr?'Health: critical':wa?'Health: attention':'Health: normal';
+ $$('#modes button').forEach(b=>b.classList.toggle('on',b.dataset.m===S.mode));
+ $('#hold').hidden=!S.hold;if(S.hold)$('#holdTxt').textContent='Outlet isolated. Needs 10 consecutive normal samples (now '+Math.min(S.okTicks,10)+'/10) and authorisation.';
+ if(cur==='ov')$('#ov').innerHTML=ovHTML();else if(cur==='fl')flHTML();else if(cur==='re')reHTML();else if(cur==='big')$('#bg').innerHTML=bigHTML();else if(cur==='d3'){info();scene3d()}
+}
+/* ---------- actions ---------- */
+const ACT={
+ flush(){if(S.flush)return;const bad=flushChecks().filter(c=>!c[1]);if(bad.length)return toast('Blocked: '+bad[0][0]);
+  if(S.mode==='manual'&&!armed){armed=true;setTimeout(()=>{armed=false;update()},5000);return update()}armed=false;startFlush()},
+ post(){S.days=14;log('Flushing postponed by authorised user');update()},
+ empty(){S.waste=0;log('Waste tank emptied for approved disposal');update()},
+ clean(){S.filter=5;log('Strainer and sediment trap cleaned');syncSim();update()},
+ treat(){if(RE.coll<20)return toast('Need at least 20 L of collected water');RE.stage=1;RE.t=0;RE.verified=false;log('Reuse treatment started')},
+ verify(){if(RE.stage<5)return toast('Treatment has not reached verification yet');if(S.fault||R.turb>5||R.ph<6||R.ph>9)return toast('Verification failed: turbidity or pH not suitable');RE.verified=true;log('Reuse quality verification recorded')},
+ use(){if(!(RE.stage>=6&&RE.verified&&RE.tank>3))return toast('Blocked: treated and verified water is required');RE.tank-=3.3;log('10 L reuse water sent to garden')},
+ release(){if(S.fault)return toast('Cannot release: sensor fault active');if(ALERTS.some(a=>a.z==='probe'&&a.lv==='cr'))return toast('Cannot release: critical condition still present');if(S.okTicks<10)return toast('Need 10 consecutive normal samples ('+S.okTicks+'/10)');S.hold=false;Object.keys(breach).forEach(k=>breach[k]=0);log('Supply released after verification');update()},
+ estop(){S.mode='safe';abortFlush('emergency stop');log('EMERGENCY STOP pressed');update()},
+ bigleak(){S.bigLeak=!S.bigLeak;update()},
+ cut(){cut=!cut;scene3d()},cam(){Object.assign(cam3,{th:.9,ph:1.15,r:22});cam3.t.set(0,2.5,0);setCam()}};
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(b&&ACT[b.dataset.a])return ACT[b.dataset.a]();
+ const n=e.target.closest('#nav [data-v]');if(n)return show(n.dataset.v);
+ const m=e.target.closest('#modes [data-m]');if(m){if(S.fault&&m.dataset.m!=='safe')return toast('Clear the sensor fault first');S.mode=m.dataset.m;log('Mode: '+S.mode);update()}
+ const c=e.target.closest('[data-c]');if(c){selId=c.dataset.c;info();}});
+$('#scale').onchange=e=>show(e.target.value==='big'?'big':'ov');
+$('#nav').innerHTML=NAV.map(n=>`<button data-v="${n[0]}">${n[1]}</button>`).join('');
+/* ---------- simulator ---------- */
+const SL=[['tank','Tank level %',0,100,1],['turb','Turbidity NTU',0,20,.1],['ph','pH',4,11,.1],['tds','TDS ppm',50,1200,10],['temp','Temperature °C',5,45,.5],['flow','Household use L/min',0,30,.5],['leak','Leak L/min',0,8,.5],['press','Pressure bar',0,6,.1],['filter','Strainer clogging %',0,100,1],['waste','Waste tank %',0,100,1]];
+const SC=[['1 Normal supply',{}],['2 Cloudy water',{turb:8.5}],['3 EC change',{tds:720}],['4 Low tank',{tank:14}],['5 Pipeline leak',{leak:3.5,leakZone:'bathroom',press:2.8}],['6 15-day maintenance',{days:15}],['7 Waste tank full',{waste:94,days:15}],['8 Sensor failure',{fault:true}],['9 Reuse system',{}]];
+$('#sim').innerHTML='<h3>Simulator <span class="chip wa">DEMO</span></h3>'+SL.map(s=>`<label class="s">${s[1]}<output id="o_${s[0]}"></output><input type="range" id="s_${s[0]}" min="${s[2]}" max="${s[3]}" step="${s[4]}"></label>`).join('')+
+ '<label class="s">Leak zone <select id="s_zone">'+ZONES.map(z=>`<option value="${z}">${cap(z)}</option>`).join('')+'</select></label><label class="s"><input type="checkbox" id="s_fault"> Probe fault</label><h3>Scenarios</h3><div class="row" style="margin:0">'+SC.map((s,i)=>`<button data-sc="${i}">${s[0]}</button>`).join('')+'</div>';
+function syncSim(){SL.forEach(s=>{$('#s_'+s[0]).value=S[s[0]];$('#o_'+s[0]).textContent=f1(S[s[0]],s[4]<1?1:0)});$('#s_zone').value=S.leakZone;$('#s_fault').checked=S.fault}
+SL.forEach(s=>$('#s_'+s[0]).oninput=e=>{S[s[0]]=+e.target.value;$('#o_'+s[0]).textContent=f1(S[s[0]],s[4]<1?1:0)});
+$('#s_zone').onchange=e=>S.leakZone=e.target.value;$('#s_fault').onchange=e=>{S.fault=e.target.checked};
+$('#sim').addEventListener('click',e=>{const b=e.target.closest('[data-sc]');if(!b)return;const i=+b.dataset.sc;
+ Object.assign(S,DEF,{leakZone:'bathroom',hold:false,flush:null,okTicks:99,mode:'auto'});Object.keys(breach).forEach(k=>breach[k]=0);Object.assign(S,SC[i][1]);
+ Object.assign(RE,{coll:60,stage:-1,t:0,verified:false,tank:35});if(i===8){RE.coll=140;RE.stage=1}
+ log('Scenario: '+SC[i][0]);syncSim();toast('Scenario loaded: '+SC[i][0]);if(i===8&&cur!=='re')show('re')});
+/* ---------- 3D ---------- */
+let scene,cam,ren,picks=[],pipes=[],cut=false,selId='tank',W={},ready=false,tt=0,last=0,leakM;
+const cam3={th:.9,ph:1.15,r:22,t:new THREE.Vector3(0,2.5,0)};
+const COMPS=[
+ ['tank','Overhead tank','Stores supply water and holds the quality probes.',()=>f1(R.tank*10,0)+' L ('+f1(R.tank,0)+'%)','Clean interior every 6 months','1000 L, overflow pipe, drain outlet'],
+ ['level','Water-level sensor','Measures level and estimates volume.',()=>f1(R.tank,1)+'% → '+f1(R.tank*10,0)+' L','Check mounting yearly','Ultrasonic or pressure type'],
+ ['probe','Quality probe set','pH, turbidity, TDS/EC, temperature and optional chlorine.',()=>S.fault?'No valid signal':'pH '+f1(R.ph,2)+' · '+f1(R.turb)+' NTU · '+f1(R.tds,0)+' ppm · '+f1(R.ec,0)+' µS/cm · '+f1(R.temp)+' °C','Calibrate pH and turbidity monthly','Parameter monitoring only: not a full safety test'],
+ ['strainer','Removable inlet strainer','Catches larger particles before the pump.',()=>S.filter+'% clogged','Remove and rinse when above 70%','Mesh strainer with isolation valves'],
+ ['pump','Main pump','Lifts water to the overhead tank.',()=>S.mode==='safe'||S.hold||S.flush?'Stopped':'Running','Local controller owns dry-run protection','Stopped before any valve switching'],
+ ['ctrl','Central control unit','Reads sensors and runs local safety logic.',()=>'Mode '+S.mode+' · '+(S.hold?'supply HOLD':'supply open'),'Firmware check yearly','Hardware interlocks are independent of this app'],
+ ['valve','Flush solenoid valve','Selects the waste bypass for controlled flushing.',()=>S.flush&&S.flush.step>=1&&S.flush.step<=4?'Waste route open':'Closed (normal route)','Verify feedback each cycle','Position feedback required'],
+ ['trap','Sediment trap and inspection chamber','Collects heavier particles; allows visual inspection.',()=>S.filter+'% full','Inspect every flush cycle','Removes particles only, not dissolved chemicals or microbes'],
+ ['waste','Flushing waste tank','Collects flush discharge separately.',()=>S.waste+'% of 200 L','Empty before it reaches 80%','Level-switch protected'],
+ ['reuse','Reuse storage tank','Holds treated, verified non-potable water.',()=>f1(RE.tank,0)+'% · '+(RE.verified?'verified':'not verified'),'Check treatment media monthly','Separate green piping with backflow protection'],
+ ['press','Pressure sensor','Monitors distribution pressure.',()=>f1(R.press,2)+' bar','Check yearly','Alerts below 1.2 or above 4.5 bar'],
+ ['finlet','Inlet flow sensor','Measures supply entering the house.',()=>f1(R.flowIn)+' L/min','Check yearly','Compared with outlet use to spot imbalance'],
+ ...ZONES.map(z=>['flow_'+z,cap(z)+' branch flow sensor','Measures flow into the '+z+' branch.',()=>f1(R.flowOut*SHARE[z]+(S.leakZone===z&&lastGap>1.5?lastGap:0))+' L/min','Check yearly','Leak zone is only as precise as sensor coverage'])];
+const M=(c,o)=>new THREE.MeshStandardMaterial({color:c,metalness:.2,roughness:.55,transparent:o!==undefined,opacity:o===undefined?1:o,depthWrite:o===undefined});
+function mk(id,g,c,x,y,z,o){const m=new THREE.Mesh(g,M(c,o));m.position.set(x,y,z);scene.add(m);if(id){m.userData.id=id;picks.push(m);W[id]=m}return m}
+const cy=(r,h,s=24)=>new THREE.CylinderGeometry(r,r,h,s),bx=(a,b,c)=>new THREE.BoxGeometry(a,b,c);
+function P(pts,col,kind,zone){const v=pts.map(p=>new THREE.Vector3(...p)),mats=[],cum=[0];let L=0;
+ for(let i=1;i<v.length;i++){const d=v[i].clone().sub(v[i-1]),l=d.length();L+=l;cum.push(L);const m=new THREE.Mesh(cy(.07,l,8),M(col));m.position.copy(v[i-1].clone().add(v[i]).multiplyScalar(.5));m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize());scene.add(m);mats.push(m.material)}
+ const sp=[];for(let i=0;i<Math.max(2,Math.round(L/1.5));i++){const s=new THREE.Mesh(new THREE.SphereGeometry(.11,8,8),new THREE.MeshBasicMaterial({color:col}));scene.add(s);sp.push(s)}
+ const r={v,cum,L,mats,sp,kind,zone,col};pipes.push(r);return r}
+function at(r,u){const s=u*r.L;let i=0;while(i<r.cum.length-2&&s>r.cum[i+1])i++;return r.v[i].clone().lerp(r.v[i+1],(s-r.cum[i])/(r.cum[i+1]-r.cum[i]))}
+function build(){
+ scene=new THREE.Scene();scene.background=new THREE.Color(0x061426);cam=new THREE.PerspectiveCamera(45,1,.1,200);
+ scene.add(new THREE.HemisphereLight(0xcfeaff,0x0a1e35,1));const dl=new THREE.DirectionalLight(0xffffff,.8);dl.position.set(8,14,10);scene.add(dl);scene.add(new THREE.GridHelper(40,40,0x1b4a6b,0x0e2a44));
+ W.walls=mk(null,bx(8,4,6),0x2a4a6b,0,2,0,.9);W.roof=mk(null,bx(8.4,.2,6.4),0x35597d,0,4.1,0,.9);
+ const ed=new THREE.LineSegments(new THREE.EdgesGeometry(bx(8,4,6)),new THREE.LineBasicMaterial({color:0x00d9ff}));ed.position.set(0,2,0);scene.add(ed);
+ W.tank=mk('tank',cy(1,1.6,32),0x7fb4d8,0,5,-1,.5);W.water=mk(null,cy(.95,1.5,32),0x0aa8d8,0,5,-1,.75);W.sed=mk(null,cy(.95,.08,32),0x7a5a30,0,4.27,-1,.9);
+ mk('level',cy(.04,1.5,8),0xffb020,.4,5,-.7);mk('probe',cy(.05,1.1,8),0x21e6d0,-.4,4.8,-.7);
+ mk('strainer',cy(.28,.7,16),0x9fb3c8,-7,.4,-1).rotation.z=Math.PI/2;mk('pump',bx(.9,.7,.7),0x3f6f9a,-5,.4,-1);
+ mk('ctrl',bx(.5,1,1.4),0x21e6d0,-4.35,2,1);mk('valve',new THREE.SphereGeometry(.24,16,16),0xffb020,1.5,.25,-1);
+ W.trap=mk('trap',cy(.4,.7,20),0x9fb3c8,3,.45,-1,.45);W.tf=mk(null,cy(.3,.5,16),0x7a5a30,3,.35,-1);
+ W.waste=mk('waste',cy(.9,1.4,28),0x9a8050,5.5,.7,1.5,.4);W.wf=mk(null,cy(.82,1.3,24),0x7a5a30,5.5,.7,1.5);
+ W.reuse=mk('reuse',cy(.9,1.4,28),0x2ed573,5.5,.7,-4.2,.4);W.rf=mk(null,cy(.82,1.3,24),0x2ed573,5.5,.7,-4.2,.8);
+ mk('press',new THREE.SphereGeometry(.2,12,12),0xffb020,0,2,-1);mk('finlet',bx(.32,.32,.32),0xffb020,-5.8,.55,-1);
+ [['kitchen',3,.8,.5],['bathroom',-3,.8,-1.8],['washbasin',-1.6,.8,1],['garden',0,.8,2.4]].forEach(a=>mk('flow_'+a[0],bx(.32,.32,.32),0xffb020,a[1],a[2],a[3]));
+ const B=0x00d9ff;
+ P([[-9,.4,-1],[-5,.4,-1]],B,'sup');P([[-5,.4,-1],[-5,5,-1],[-1,5,-1]],B,'sup');P([[0,4.2,-1],[0,.8,-1]],B,'main');
+ P([[0,.8,-1],[3,.8,-1],[3,.8,2]],B,'br','kitchen');P([[0,.8,-1],[-3,.8,-1],[-3,.8,-2.4]],B,'br','bathroom');
+ P([[0,.8,-1],[-1.6,.8,-1],[-1.6,.8,2]],B,'br','washbasin');P([[0,.8,-1],[0,.8,3],[0,.3,5]],B,'br','garden');
+ P([[0,.8,-1],[0,.25,-1],[5.5,.25,-1],[5.5,.25,.7]],0x8b6b3d,'flush');P([[-3,.3,-2.4],[-3,.3,-4.2],[4.6,.3,-4.2]],0x2ed573,'reuse');
+ leakM=new THREE.Mesh(new THREE.SphereGeometry(.3,12,12),new THREE.MeshBasicMaterial({color:0xff4d5e}));scene.add(leakM);
+ setCam();ready=true}
+function setCam(){const{th,ph,r,t}=cam3;cam.position.set(t.x+r*Math.sin(ph)*Math.sin(th),t.y+r*Math.cos(ph),t.z+r*Math.sin(ph)*Math.cos(th));cam.lookAt(t);cam.updateMatrixWorld()}
+function mount3d(){
+ if(!ren){ren=new THREE.WebGLRenderer({antialias:true});ren.setPixelRatio(Math.min(devicePixelRatio,2));build();bind(ren.domElement)}
+ const st=$('#stage');st.appendChild(ren.domElement);const rs=()=>{const w=st.clientWidth,h=st.clientHeight;if(w&&h){ren.setSize(w,h);cam.aspect=w/h;cam.updateProjectionMatrix()}};rs();new ResizeObserver(rs).observe(st);scene3d()}
+function bind(el){let d=null;
+ el.onpointerdown=e=>{d={x:e.clientX,y:e.clientY,sx:e.clientX,sy:e.clientY,pan:e.button===2||e.shiftKey};el.setPointerCapture(e.pointerId)};
+ el.onpointermove=e=>{if(!d)return;const dx=e.clientX-d.x,dy=e.clientY-d.y;d.x=e.clientX;d.y=e.clientY;
+  if(d.pan){const k=cam3.r*.0015,rt=new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld,0),up=new THREE.Vector3().setFromMatrixColumn(cam.matrixWorld,1);cam3.t.addScaledVector(rt,-dx*k).addScaledVector(up,dy*k)}
+  else{cam3.th-=dx*.006;cam3.ph=Math.min(1.5,Math.max(.15,cam3.ph-dy*.006))}setCam()};
+ el.onpointerup=e=>{if(d&&Math.hypot(e.clientX-d.sx,e.clientY-d.sy)<5){const r=el.getBoundingClientRect(),rc=new THREE.Raycaster();rc.setFromCamera(new THREE.Vector2((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1),cam);const h=rc.intersectObjects(picks)[0];if(h){selId=h.object.userData.id;info()}}d=null};
+ el.onwheel=e=>{e.preventDefault();cam3.r=Math.min(45,Math.max(6,cam3.r*(1+e.deltaY*.001)));setCam()};el.oncontextmenu=e=>e.preventDefault()}
+function scene3d(){if(!ready)return;
+ const o=cut?.12:.9;W.walls.material.opacity=o;W.roof.material.opacity=cut?.2:.9;W.tank.material.opacity=cut?.22:.7;
+ const lv=Math.max(.02,Math.min(1,R.tank/100||0));W.water.scale.y=lv;W.water.position.y=4.25+.75*lv;
+ W.water.material.color.setHex(R.turb>4?0x8a6a3a:0x0aa8d8);W.sed.material.opacity=Math.min(1,.15+R.turb/12);
+ const sf=(m,f,h,b)=>{f=Math.max(.01,f/100);m.scale.y=f;m.position.y=b+h*f/2};sf(W.wf,S.waste,1.3,.05);sf(W.rf,RE.tank,1.3,.05);sf(W.tf,S.filter,.5,.1);
+ const gap=lastGap;pipes.forEach(r=>{const c=S.hold?0x56667a:r.zone&&r.zone===S.leakZone&&gap>1.5?0xff4d5e:r.col;r.mats.forEach(m=>m.color.setHex(c))});
+ Object.keys(W).forEach(k=>{const m=W[k];if(m&&m.userData.id)m.material.emissive.setHex(m.userData.id===selId?0x0a6a88:0)})}
+function animate(dt){tt+=dt;const F=S.flush,fs=F&&F.step===3,gap=lastGap,lk=gap>1.5;
+ pipes.forEach(r=>{let on=false,col=r.col;
+  if(r.kind==='sup')on=!S.hold&&S.mode!=='safe'&&S.tank<97&&!F;
+  else if(r.kind==='main')on=(R.flowOut>.1&&!S.hold)||fs;
+  else if(r.kind==='br')on=R.flowOut>.1&&!S.hold&&!F;
+  else if(r.kind==='flush')on=fs;else if(r.kind==='reuse')on=RE.coll>0&&RE.stage<6;
+  if(r.kind!=='flush'&&r.kind!=='reuse'&&R.turb>4)col=0x9a8a50;if(r.zone&&r.zone===S.leakZone&&lk)col=0xff4d5e;
+  const sp=.08+R.flowOut*.012;r.sp.forEach((s,i)=>{s.visible=on;if(on){s.position.copy(at(r,((i/r.sp.length)+tt*sp)%1));s.material.color.setHex(col)}})});
+ const z=pipes.find(r=>r.zone===S.leakZone);leakM.visible=lk&&!S.hold;if(leakM.visible){leakM.position.copy(at(z,.6));leakM.scale.setScalar(1+.3*Math.sin(tt*6))}}
+function loop(ms){requestAnimationFrame(loop);const dt=Math.min((ms-last)/1000,.1);last=ms;if(cur!=='d3'||!ready)return;animate(dt);ren.render(scene,cam)}
+function info(){const el=$('#info');if(!el)return;const c=COMPS.find(x=>x[0]===selId)||COMPS[0],al=ALERTS.filter(a=>a.z===c[0]);
+ el.innerHTML='<h3>'+c[1]+'</h3>'+kv('Purpose',c[2])+kv('Live reading',c[3]())+kv('Connection',S.fault&&c[0]==='probe'?chip('cr','Fault'):chip('ok','Connected (simulated)'))+kv('Maintenance',c[4])+kv('Technical',c[5])+'<h3 style="margin-top:8px">Recent alerts</h3>'+(al.length?al.map(alertHTML).join(''):'<span class="mut">None</span>')}
+function clist(){const q=($('#q').value||'').toLowerCase();$('#clist').innerHTML=COMPS.filter(c=>c[1].toLowerCase().includes(q)).map(c=>`<button data-c="${c[0]}" style="margin:2px">${c[1]}</button>`).join('')}
+requestAnimationFrame(loop);
+syncSim();show('ov');tick();setInterval(tick,1000);
+</script>
+</body></html>
